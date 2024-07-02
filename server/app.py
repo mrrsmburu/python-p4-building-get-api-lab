@@ -20,19 +20,56 @@ def index():
 
 @app.route('/bakeries')
 def bakeries():
-    return ''
+    bakeries = Bakery.query.all()
+    result = []
+    for bakery in bakeries:
+        result.append({
+            'id': bakery.id,
+            'name': bakery.name,
+            'baked_goods': [{'id': bg.id, 'name': bg.name, 'price': bg.price} for bg in bakery.baked_goods]
+        })
+    return jsonify(result)
+
+    
 
 @app.route('/bakeries/<int:id>')
 def bakery_by_id(id):
-    return ''
+    bakery = Bakery.query.get(id)
+    if not bakery:
+        abort(404)
+    result = {
+        'id': bakery.id,
+        'name': bakery.name,
+        'baked_goods': [{'id': bg.id, 'name': bg.name, 'price': bg.price} for bg in bakery.baked_goods]
+    }
+    return jsonify(result)
+
+
+    
 
 @app.route('/baked_goods/by_price')
 def baked_goods_by_price():
-    return ''
+    baked_goods = BakedGood.query.order_by(BakedGood.price.desc()).all()
+    result = [{'id': bg.id, 'name': bg.name, 'price': bg.price} for bg in baked_goods]
+    return jsonify(result)
+
+
+    
+
+
 
 @app.route('/baked_goods/most_expensive')
 def most_expensive_baked_good():
-    return ''
+    baked_good = BakedGood.query.order_by(BakedGood.price.desc()).first()
+    if not baked_good:
+        abort(404)
+    result = {
+        'id': baked_good.id,
+        'name': baked_good.name,
+        'price': baked_good.price
+    }
+    return jsonify(result)
+
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
