@@ -20,56 +20,42 @@ def index():
 
 @app.route('/bakeries')
 def bakeries():
-    bakeries = Bakery.query.all()
-    result = []
-    for bakery in bakeries:
-        result.append({
-            'id': bakery.id,
-            'name': bakery.name,
-            'baked_goods': [{'id': bg.id, 'name': bg.name, 'price': bg.price} for bg in bakery.baked_goods]
-        })
-    return jsonify(result)
+    bakeries = [bakery.to_dict() for bakery in Bakery.query.all()]
+    response = make_response(
+        bakeries,
+        200
+    )
 
-    
+    return response
 
 @app.route('/bakeries/<int:id>')
 def bakery_by_id(id):
-    bakery = Bakery.query.get(id)
-    if not bakery:
-        abort(404)
-    result = {
-        'id': bakery.id,
-        'name': bakery.name,
-        'baked_goods': [{'id': bg.id, 'name': bg.name, 'price': bg.price} for bg in bakery.baked_goods]
-    }
-    return jsonify(result)
-
-
-    
+    bakery = Bakery.query.filter(Bakery.id == id).first()
+    bakery_dict = bakery.to_dict()
+    response = make_response(
+        bakery_dict,
+        200
+    )
+    return response
 
 @app.route('/baked_goods/by_price')
 def baked_goods_by_price():
-    baked_goods = BakedGood.query.order_by(BakedGood.price.desc()).all()
-    result = [{'id': bg.id, 'name': bg.name, 'price': bg.price} for bg in baked_goods]
-    return jsonify(result)
-
-
-    
-
-
+    baked_goods = [baked_good.to_dict() for baked_good in BakedGood.query.order_by(BakedGood.price.desc()).all()]
+    response = make_response(
+        baked_goods,
+        200
+    )
+    return response
 
 @app.route('/baked_goods/most_expensive')
 def most_expensive_baked_good():
     baked_good = BakedGood.query.order_by(BakedGood.price.desc()).first()
-    if not baked_good:
-        abort(404)
-    result = {
-        'id': baked_good.id,
-        'name': baked_good.name,
-        'price': baked_good.price
-    }
-    return jsonify(result)
-
+    baked_good_dict = baked_good.to_dict()
+    response = make_response(
+        baked_good_dict,
+        200
+    )
+    return response
 
 if __name__ == '__main__':
     app.run(port=5555, debug=True)
